@@ -1,5 +1,8 @@
-//package src;
 import java.util.HashMap;
+
+/*
+ * @author Michael Holmes
+ */
 
 public class ResultTable {
     private final HashMap<Integer, Integer> table;
@@ -8,13 +11,12 @@ public class ResultTable {
         this.table = new HashMap<>();
     }
 
-    // Method to add a result to the table
-    public synchronized void addResult(int digitPosition, int piDigit) {
-        table.put(digitPosition, piDigit);
+    public synchronized void put(int digit, int piDigit) {
+        table.put(digit, piDigit);
     }
 
-    // Method to get a result from the table
-    public synchronized Integer getResult(int digitPosition) {
-        return table.get(digitPosition);
+    public synchronized int get(int digit) {
+        return table.get(digit);
     }
 }
+

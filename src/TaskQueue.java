@@ -1,37 +1,41 @@
-//package src;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
+/*
+ * @author Michael Holmes
+ */
+
 public class TaskQueue {
-    private final LinkedList<ComputeTask> queue;
+    private final LinkedList<Integer> queue;
 
     public TaskQueue() {
         this.queue = new LinkedList<>();
     }
 
-    // Method to add a task to the queue
-    public synchronized void enqueue(ComputeTask task) {
+    public synchronized void enqueue(Integer task) {
         queue.addLast(task);
-        // Notify any waiting threads that an item has been added to the queue
-        notifyAll();
+        notifyAll(); // Notify all threads
     }
 
-    // Method to remove and return the first task from the queue
-    public synchronized ComputeTask dequeue() throws InterruptedException {
-        // Wait while the queue is empty
+    public synchronized Integer dequeue() throws InterruptedException {
         while (queue.isEmpty()) {
             wait();
         }
         return queue.removeFirst();
     }
 
-    // Method to check if the queue is empty
     public synchronized boolean isEmpty() {
         return queue.isEmpty();
     }
 
-    // Class representing a compute task
-    static class ComputeTask {
-        // Task attributes and methods can be added here
+    public synchronized void populateQueue(int numDigits) {
+        ArrayList<Integer> tasks = new ArrayList<>();
+        for (int i = 1; i <= numDigits; i++) {
+            tasks.add(i);
+        }
+        Collections.shuffle(tasks);
+        queue.addAll(tasks);
+        notifyAll();
     }
 }
-

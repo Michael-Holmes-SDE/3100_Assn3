@@ -1,5 +1,4 @@
-//package src;
-/**
+/*
  * Prints the nth number of pi followed by the next 8 numbers in base 10.
  * This program is based on Bellard's work.
  * @author feltocraig
