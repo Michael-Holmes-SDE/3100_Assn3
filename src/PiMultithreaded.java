@@ -2,9 +2,10 @@
  * @author Michael Holmes
  */
 
-// GETTING THE WRONG VALUES FOR PI
 
 public class PiMultithreaded {
+    private static int digitsComputed = 0; // Global counter for total digits computed by all threads combined
+    private static final Object lock = new Object(); // Shared lock object for synchronization of all worker threads
 
     static class WorkerThread extends Thread {
         private final TaskQueue taskQueue;
@@ -15,19 +16,22 @@ public class PiMultithreaded {
             this.resultTable = resultTable;
         }
 
-        //@Override
         public void run() {
             while (!taskQueue.isEmpty()) {
                 try {
                     int digit = taskQueue.dequeue();
-		            Bpp bpp = new Bpp(); // MAKE EASIER TO READ
+		            Bpp bpp = new Bpp(); // Class to get the nth decimal digit of pi
                     int piDigit = bpp.getDecimal(digit);
                     resultTable.put(digit, piDigit);
 
-                    // Print out "." for every 10 digits finished
-                    if (digit % 10 == 0) {
-                        System.out.print(".");
-                        System.out.flush();
+                    synchronized (lock) { // Ensure only one thread can access at a time
+                        digitsComputed++;
+
+                        // Print out "." for every 10 digits finished
+                        if (digitsComputed % 10 == 0) {
+                            System.out.print(".");
+                            System.out.flush();
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -39,13 +43,14 @@ public class PiMultithreaded {
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         int numCores = Runtime.getRuntime().availableProcessors();
+        int digitsToCompute = 1000; // For easily changing pi digits to compute
 
         TaskQueue taskQueue = new TaskQueue();
-        taskQueue.populateQueue(1000);
+        taskQueue.populateQueue(digitsToCompute); // The queue is randomized in this method
         
         ResultTable resultTable = new ResultTable();
 
-        // Create and start worker threads
+        // Create and start the worker threads, one thread for each core on the system
         WorkerThread[] threads = new WorkerThread[numCores];
         for (int i = 0; i < numCores; i++) {
             threads[i] = new WorkerThread(taskQueue, resultTable);
@@ -62,14 +67,14 @@ public class PiMultithreaded {
         }
 
         // Print the computed value of Pi
-        System.out.println("\nComputed value of Pi:"); // ISN'T CORRECT YET, TEST
+        System.out.println("\nComputed value of Pi:");
         System.out.print("3.");
-        for (int i = 1; i < 1001; i++) {
+        for (int i = 1; i < digitsToCompute+1; i++) {
             int piDigit = resultTable.get(i);
             System.out.print(piDigit);
         }
 
-        // Calculate and print total wall clock time
+        // Calculate and print the total wall clock time
         long endTime = System.currentTimeMillis();
         System.out.println("\nTotal wall clock time: " + (endTime - startTime) + " ms");
     }
